@@ -36,6 +36,12 @@ $.fn.extend
             # The success message. Set to false to disable showing a message.
             successMessage: false
             
+            # Events for which the plugin listens to and makes changes.
+            events: [ 'keyup', 'blur' ]
+            
+            # States to reset on focus. Set to false for ignore.
+            resetStatesOnFocus: [ "error" ]
+            
             # Animation speed for toggling the validation message.
             #
             # Unit: ms
@@ -128,6 +134,22 @@ $.fn.extend
                     .animate
                         'margin-bottom': '-' + slideDistance + 'px'
                     , settings.animationSpeed
+                
+                
+        # Resets the states from the validationSuccess() and validationFailure()
+        # functions.
+        resetState = ->
+            return if not settings.container? or settings.container.length < 1
+            return if settings.resetStatesOnFocus is false
+
+            fieldset = settings.container.find "fieldset"
+            if "error" in settings.resetStatesOnFocus and fieldset.hasClass("error")
+                fieldset.removeClass "error"
+                hideMessage()
+                
+            if "success" in settings.resetStatesOnFocus and fieldset.hasClass("success")
+                fieldset.removeClass "success"
+                hideMessage()
                     
                     
         # Performs the validation.
@@ -143,18 +165,45 @@ $.fn.extend
                 validationSuccess()
             else
                 validationFailure()
-                  
-                  
+                
+                
+        # Evaluates and runs whether or not the event should be run depending
+        # on the key the user pressed.
+        evaluateValidate = (keyCode) ->
+            # Don't run if we're just pressing shift, cmd, ctrl etc.
+            disallowedKeys = [
+                9    # Tab
+                16   # Shift
+                17   # Ctrl / cmd
+                18   # Alt
+                37   # Left arrow
+                38   # Up arrow
+                39   # Right arrow
+                40   # Down arrow
+                91   # Left window key
+                92   # Right window key
+                93   # Right ctrl / cmd
+            ]
+            return if keyCode in disallowedKeys
+            
+            validate()
+
+
         # Init and bindings.
         settings.container = inputField.closest(".inputContainer")
         
         # If we send a jQuery selector to match against, fail this validation
         # if the supplied variable changes.
         if !(settings.validationCondition instanceof RegExp)
-            settings.validationCondition.on 'keyup blur', =>
-                validate()
+            settings.validationCondition.on settings.events.join(" "), (e) =>
+                evaluateValidate e.keyCode
         
         # Attach validation event.
-        settings.container.on 'keyup blur', =>
-            validate()
+        settings.container.on settings.events.join(" "), (e) =>
+            evaluateValidate e.keyCode
+            
+        # If we want to reset error classes on focus, attach event for it.
+        if settings.resetStatesOnFocus isnt false
+            inputField.on 'focus', ->
+                resetState()
             

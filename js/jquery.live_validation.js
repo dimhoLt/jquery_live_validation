@@ -19,15 +19,19 @@
     $ uglifyjs js/jquery.live_validation.js -p js/jquery.live_validation.min.js
 */
 
+var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
 $.fn.extend({
   liveValidation: function(options) {
-    var hideMessage, inputField, settings, validate, validationFailure, validationSuccess,
+    var evaluateValidate, hideMessage, inputField, resetState, settings, validate, validationFailure, validationSuccess,
       _this = this;
     settings = {
       container: null,
       validationCondition: null,
       errorMessage: "Error here =(",
       successMessage: false,
+      events: ['keyup', 'blur'],
+      resetStatesOnFocus: ["error"],
       animationSpeed: 100
     };
     settings = jQuery.extend(settings, options);
@@ -103,6 +107,24 @@ $.fn.extend({
         }, settings.animationSpeed);
       }
     };
+    resetState = function() {
+      var fieldset;
+      if ((settings.container == null) || settings.container.length < 1) {
+        return;
+      }
+      if (settings.resetStatesOnFocus === false) {
+        return;
+      }
+      fieldset = settings.container.find("fieldset");
+      if (__indexOf.call(settings.resetStatesOnFocus, "error") >= 0 && fieldset.hasClass("error")) {
+        fieldset.removeClass("error");
+        hideMessage();
+      }
+      if (__indexOf.call(settings.resetStatesOnFocus, "success") >= 0 && fieldset.hasClass("success")) {
+        fieldset.removeClass("success");
+        return hideMessage();
+      }
+    };
     validate = function() {
       var result;
       result = false;
@@ -117,14 +139,27 @@ $.fn.extend({
         return validationFailure();
       }
     };
+    evaluateValidate = function(keyCode) {
+      var disallowedKeys;
+      disallowedKeys = [9, 16, 17, 18, 37, 38, 39, 40, 91, 92, 93];
+      if (__indexOf.call(disallowedKeys, keyCode) >= 0) {
+        return;
+      }
+      return validate();
+    };
     settings.container = inputField.closest(".inputContainer");
     if (!(settings.validationCondition instanceof RegExp)) {
-      settings.validationCondition.on('keyup blur', function() {
-        return validate();
+      settings.validationCondition.on(settings.events.join(" "), function(e) {
+        return evaluateValidate(e.keyCode);
       });
     }
-    return settings.container.on('keyup blur', function() {
-      return validate();
+    settings.container.on(settings.events.join(" "), function(e) {
+      return evaluateValidate(e.keyCode);
     });
+    if (settings.resetStatesOnFocus !== false) {
+      return inputField.on('focus', function() {
+        return resetState();
+      });
+    }
   }
 });
