@@ -134,7 +134,6 @@ $.fn.extend
         validate = ->
             result = false
             if typeof settings.validationCondition is "object" and settings.validationCondition instanceof RegExp
-                console.log inputField
                 result = settings.validationCondition.test inputField.val()
    
             else

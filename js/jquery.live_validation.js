@@ -107,7 +107,6 @@ $.fn.extend({
       var result;
       result = false;
       if (typeof settings.validationCondition === "object" && settings.validationCondition instanceof RegExp) {
-        console.log(inputField);
         result = settings.validationCondition.test(inputField.val());
       } else {
         result = settings.validationCondition.val() === inputField.val();
