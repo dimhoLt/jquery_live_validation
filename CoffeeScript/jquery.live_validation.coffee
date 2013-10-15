@@ -20,14 +20,17 @@
 
 $.fn.extend
     liveValidation: (options) ->
+
+        inputField = $(this)
         
-        settings =    
+        settings =
             # The inputContainer for the field.
             container: null
             
-            # The condition to run to check for success.
-            # Allowed to be regex or a jQuery input field selector, for password
-            # matching.
+            # The condition to run to check for success. Allowed value types:
+            #   Regex                : Tests the input field to match the regex. This should considered default.
+            #   jQuery input field   : For password matching etc, this type matches the two's input.
+            #   Function(fieldValue) : Supply a function receiving the field value. Must return a bool.
             validationCondition: null
             
             # The error message. Set to false to disable showing a message.
@@ -46,125 +49,135 @@ $.fn.extend
             #
             # Unit: ms
             animationSpeed: 100
-            
-        settings = jQuery.extend settings, options
-        
-        inputField = $(this)
-        
-        # Hides the live validation message for a given container.
-        hideMessage = (animate = true) ->
-            return if !settings.container? or settings.container.length < 1
-            
-            statusContainer = settings.container.find(".fieldStatus")
-            return if statusContainer.length < 1
-            
-            if animate
-                statusContainer.animate
-                    'margin-bottom': '0px'
-                , settings.animationSpeed
-                
-            else
-                statusContainer.css
-                    'margin-bottom': '0px'
+
+            # Hides the current message and shows a success message instead.
+            showSuccessMessage: (settings) ->
+                # Find the live validation box and show it.
+                statusContainer = settings.container.find(".fieldStatus")
     
+                # Don't show the message if set to false.
+                if settings.successMessage is false
+                    settings.hideMessage false
+                    return
     
-        # Takes an input container and sets it to the success class and shows it's
-        # live validation message.
-        #
-        # If "message" is set to "false", no message will be displayed, only the
-        # @container will receive the success-class.
-        validationSuccess = (timeout = 500) ->
-            return if !settings.container? or settings.container.length < 1
-            
-            fieldset = settings.container.find("fieldset")
-            # Add success class to container...
-            fieldset.removeClass("error").addClass("success")
-            
-            # Now, if the message is set to false, don't show one.
-            if settings.successMessage is false
-                hideMessage false
-                return
-            
-            # Now find the live validation box and show it.
-            statusContainer = settings.container.find(".fieldStatus")
-            
-            if statusContainer.length is 1
-                statusContainer.text settings.successMessage
-                
-                slideDistance = statusContainer.outerHeight() - 2
-                statusContainer
+                if statusContainer.length is 1
+                    statusContainer.text settings.successMessage
+    
+                    slideDistance = statusContainer.outerHeight() - 2
+                    statusContainer
                     .removeClass("error")
                     .addClass("success")
                     .promise()
                     .done ->
-                        inputField.animate {
-                            'margin-bottom': '-' + slideDistance + 'px'
-                        }, settings.animationSpeed, ->
-                            inputField.delay(timeout).animate
-                                'margin-bottom': '0px'
-            
+                            inputField.animate {
+                                'margin-bottom': '-' + slideDistance + 'px'
+                            }, settings.animationSpeed, ->
+                                inputField.delay(timeout).animate
+                                    'margin-bottom': '0px'
+
+            # Hides the current message and shows an error message instead.
+            showErrorMessage: (settings) ->
+                # Now find the live validation box and show it.
+                statusContainer = settings.container.find(".fieldStatus")
     
-        # Takes an input container and sets it to the error class and shows it's
-        # live valdation error message.
-        #
-        # If "message" is set to "false", no message will be displayed, only the
-        # @container will receive the error-class.
-        validationFailure = ->
-            return if !settings.container? or settings.container.length < 1
-            
-            fieldset = settings.container.find("fieldset")
-            # Add error class to container...
-            fieldset.removeClass("success").addClass("error")
-            
-            # Now find the live validation box and show it.
-            statusContainer = settings.container.find(".fieldStatus")
-            
-            # Now, if the message is set to false, don't show one.
-            if settings.errorMessage is false
-                hideMessage false
-                return
-                
-            if statusContainer.length is 1
-                statusContainer.text settings.errorMessage
-                
-                slideDistance = statusContainer.outerHeight() - 2
-                statusContainer
+                # Now, if the message is set to false, don't show one.
+                if settings.errorMessage is false
+                    settings.hideMessage false
+                    return
+    
+                if statusContainer.length is 1
+                    statusContainer.text settings.errorMessage
+    
+                    slideDistance = statusContainer.outerHeight() - 2
+                    statusContainer
                     .removeClass("success")
                     .addClass("error")
                     .animate
-                        'margin-bottom': '-' + slideDistance + 'px'
-                    , settings.animationSpeed
-                
-                
-        # Resets the states from the validationSuccess() and validationFailure()
-        # functions.
-        resetState = ->
-            return if not settings.container? or settings.container.length < 1
-            return if settings.resetStatesOnFocus is false
+                            'margin-bottom': '-' + slideDistance + 'px'
+                        , settings.animationSpeed
 
-            fieldset = settings.container.find "fieldset"
-            if "error" in settings.resetStatesOnFocus and fieldset.hasClass("error")
-                fieldset.removeClass "error"
-                hideMessage()
-                
-            if "success" in settings.resetStatesOnFocus and fieldset.hasClass("success")
-                fieldset.removeClass "success"
-                hideMessage()
-                    
-                    
+            # Hides the live validation message for a given container.
+            hideMessage: (animate = true) ->
+                return if !settings.container? or settings.container.length < 1
+    
+                statusContainer = settings.container.find(".fieldStatus")
+                return if statusContainer.length < 1
+    
+                if animate
+                    statusContainer.animate
+                        'margin-bottom': '0px'
+                    , settings.animationSpeed
+    
+                else
+                    statusContainer.css
+                        'margin-bottom': '0px'
+
+            # Takes an input container and sets it to the success class and shows it's
+            # live validation message.
+            #
+            # If "message" is set to "false", no message will be displayed, only the
+            # @container will receive the success-class.
+            validationSuccess: (inputField, settings) ->
+                return if !settings.container? or settings.container.length < 1
+    
+                fieldset = settings.container.find("fieldset")
+                # Add success class to container...
+                fieldset.removeClass("error").addClass("success")
+    
+                # Now, if the message is set to false, don't show one.
+                if settings.successMessage is false
+                    settings.hideMessage false
+                    return
+    
+                settings.showSuccessMessage settings
+
+            # Takes an input container and sets it to the error class and shows it's
+            # live valdation error message.
+            #
+            # If "message" is set to "false", no message will be displayed, only the
+            # @container will receive the error-class.
+            validationFailure: (inputField, settings) ->
+                return if !settings.container? or settings.container.length < 1
+    
+                fieldset = settings.container.find("fieldset")
+                # Add error class to container...
+                fieldset.removeClass("success").addClass("error")
+    
+                settings.showErrorMessage settings
+
+            # Resets the states from the validationSuccess() and validationFailure()
+            # functions.
+            resetState: (inputField, settings) ->
+                return if not settings.container? or settings.container.length < 1
+                return if settings.resetStatesOnFocus is false
+    
+                fieldset = settings.container.find "fieldset"
+                if "error" in settings.resetStatesOnFocus and fieldset.hasClass("error")
+                    fieldset.removeClass "error"
+                    settings.hideMessage()
+    
+                if "success" in settings.resetStatesOnFocus and fieldset.hasClass("success")
+                    fieldset.removeClass "success"
+                    settings.hideMessage()
+            
+        settings = jQuery.extend settings, options
+        
         # Performs the validation.
         validate = ->
             result = false
             if typeof settings.validationCondition is "object" and settings.validationCondition instanceof RegExp
                 result = settings.validationCondition.test inputField.val()
+                
+            else if typeof settings.validationCondition is "function"
+                result = settings.validationCondition inputField.val()
    
             else
                 result = settings.validationCondition.val() is inputField.val()
    
             if result is true
-                validationSuccess()
+                settings["validationSuccess"](inputField, settings)
             else
-                validationFailure()
+                settings["validationFailure"](inputField, settings)
                 
                 
         # Evaluates and runs whether or not the event should be run depending
@@ -194,7 +207,7 @@ $.fn.extend
         
         # If we send a jQuery selector to match against, fail this validation
         # if the supplied variable changes.
-        if !(settings.validationCondition instanceof RegExp)
+        if typeof settings.validationCondition is "object" and settings.validationCondition instanceof jQuery
             settings.validationCondition.on settings.events.join(" "), (e) =>
                 evaluateValidate e.keyCode
         
@@ -205,5 +218,5 @@ $.fn.extend
         # If we want to reset error classes on focus, attach event for it.
         if settings.resetStatesOnFocus isnt false
             inputField.on 'focus', ->
-                resetState()
+                settings.resetState inputField, settings
             

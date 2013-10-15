@@ -23,8 +23,9 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
 
 $.fn.extend({
   liveValidation: function(options) {
-    var evaluateValidate, hideMessage, inputField, resetState, settings, validate, validationFailure, validationSuccess,
+    var evaluateValidate, inputField, settings, validate,
       _this = this;
+    inputField = $(this);
     settings = {
       container: null,
       validationCondition: null,
@@ -32,111 +33,121 @@ $.fn.extend({
       successMessage: false,
       events: ['keyup', 'blur'],
       resetStatesOnFocus: ["error"],
-      animationSpeed: 100
-    };
-    settings = jQuery.extend(settings, options);
-    inputField = $(this);
-    hideMessage = function(animate) {
-      var statusContainer;
-      if (animate == null) {
-        animate = true;
-      }
-      if ((settings.container == null) || settings.container.length < 1) {
-        return;
-      }
-      statusContainer = settings.container.find(".fieldStatus");
-      if (statusContainer.length < 1) {
-        return;
-      }
-      if (animate) {
-        return statusContainer.animate({
-          'margin-bottom': '0px'
-        }, settings.animationSpeed);
-      } else {
-        return statusContainer.css({
-          'margin-bottom': '0px'
-        });
-      }
-    };
-    validationSuccess = function(timeout) {
-      var fieldset, slideDistance, statusContainer;
-      if (timeout == null) {
-        timeout = 500;
-      }
-      if ((settings.container == null) || settings.container.length < 1) {
-        return;
-      }
-      fieldset = settings.container.find("fieldset");
-      fieldset.removeClass("error").addClass("success");
-      if (settings.successMessage === false) {
-        hideMessage(false);
-        return;
-      }
-      statusContainer = settings.container.find(".fieldStatus");
-      if (statusContainer.length === 1) {
-        statusContainer.text(settings.successMessage);
-        slideDistance = statusContainer.outerHeight() - 2;
-        return statusContainer.removeClass("error").addClass("success").promise().done(function() {
-          return inputField.animate({
-            'margin-bottom': '-' + slideDistance + 'px'
-          }, settings.animationSpeed, function() {
-            return inputField.delay(timeout).animate({
-              'margin-bottom': '0px'
+      animationSpeed: 100,
+      showSuccessMessage: function(settings) {
+        var slideDistance, statusContainer;
+        statusContainer = settings.container.find(".fieldStatus");
+        if (settings.successMessage === false) {
+          settings.hideMessage(false);
+          return;
+        }
+        if (statusContainer.length === 1) {
+          statusContainer.text(settings.successMessage);
+          slideDistance = statusContainer.outerHeight() - 2;
+          return statusContainer.removeClass("error").addClass("success").promise().done(function() {
+            return inputField.animate({
+              'margin-bottom': '-' + slideDistance + 'px'
+            }, settings.animationSpeed, function() {
+              return inputField.delay(timeout).animate({
+                'margin-bottom': '0px'
+              });
             });
           });
-        });
+        }
+      },
+      showErrorMessage: function(settings) {
+        var slideDistance, statusContainer;
+        statusContainer = settings.container.find(".fieldStatus");
+        if (settings.errorMessage === false) {
+          settings.hideMessage(false);
+          return;
+        }
+        if (statusContainer.length === 1) {
+          statusContainer.text(settings.errorMessage);
+          slideDistance = statusContainer.outerHeight() - 2;
+          return statusContainer.removeClass("success").addClass("error").animate({
+            'margin-bottom': '-' + slideDistance + 'px'
+          }, settings.animationSpeed);
+        }
+      },
+      hideMessage: function(animate) {
+        var statusContainer;
+        if (animate == null) {
+          animate = true;
+        }
+        if ((settings.container == null) || settings.container.length < 1) {
+          return;
+        }
+        statusContainer = settings.container.find(".fieldStatus");
+        if (statusContainer.length < 1) {
+          return;
+        }
+        if (animate) {
+          return statusContainer.animate({
+            'margin-bottom': '0px'
+          }, settings.animationSpeed);
+        } else {
+          return statusContainer.css({
+            'margin-bottom': '0px'
+          });
+        }
+      },
+      validationSuccess: function(inputField, settings) {
+        var fieldset;
+        if ((settings.container == null) || settings.container.length < 1) {
+          return;
+        }
+        fieldset = settings.container.find("fieldset");
+        fieldset.removeClass("error").addClass("success");
+        if (settings.successMessage === false) {
+          settings.hideMessage(false);
+          return;
+        }
+        return settings.showSuccessMessage(settings);
+      },
+      validationFailure: function(inputField, settings) {
+        var fieldset;
+        if ((settings.container == null) || settings.container.length < 1) {
+          return;
+        }
+        fieldset = settings.container.find("fieldset");
+        fieldset.removeClass("success").addClass("error");
+        return settings.showErrorMessage(settings);
+      },
+      resetState: function(inputField, settings) {
+        var fieldset;
+        if ((settings.container == null) || settings.container.length < 1) {
+          return;
+        }
+        if (settings.resetStatesOnFocus === false) {
+          return;
+        }
+        fieldset = settings.container.find("fieldset");
+        if (__indexOf.call(settings.resetStatesOnFocus, "error") >= 0 && fieldset.hasClass("error")) {
+          fieldset.removeClass("error");
+          settings.hideMessage();
+        }
+        if (__indexOf.call(settings.resetStatesOnFocus, "success") >= 0 && fieldset.hasClass("success")) {
+          fieldset.removeClass("success");
+          return settings.hideMessage();
+        }
       }
     };
-    validationFailure = function() {
-      var fieldset, slideDistance, statusContainer;
-      if ((settings.container == null) || settings.container.length < 1) {
-        return;
-      }
-      fieldset = settings.container.find("fieldset");
-      fieldset.removeClass("success").addClass("error");
-      statusContainer = settings.container.find(".fieldStatus");
-      if (settings.errorMessage === false) {
-        hideMessage(false);
-        return;
-      }
-      if (statusContainer.length === 1) {
-        statusContainer.text(settings.errorMessage);
-        slideDistance = statusContainer.outerHeight() - 2;
-        return statusContainer.removeClass("success").addClass("error").animate({
-          'margin-bottom': '-' + slideDistance + 'px'
-        }, settings.animationSpeed);
-      }
-    };
-    resetState = function() {
-      var fieldset;
-      if ((settings.container == null) || settings.container.length < 1) {
-        return;
-      }
-      if (settings.resetStatesOnFocus === false) {
-        return;
-      }
-      fieldset = settings.container.find("fieldset");
-      if (__indexOf.call(settings.resetStatesOnFocus, "error") >= 0 && fieldset.hasClass("error")) {
-        fieldset.removeClass("error");
-        hideMessage();
-      }
-      if (__indexOf.call(settings.resetStatesOnFocus, "success") >= 0 && fieldset.hasClass("success")) {
-        fieldset.removeClass("success");
-        return hideMessage();
-      }
-    };
+    settings = jQuery.extend(settings, options);
     validate = function() {
       var result;
       result = false;
       if (typeof settings.validationCondition === "object" && settings.validationCondition instanceof RegExp) {
         result = settings.validationCondition.test(inputField.val());
+      } else if (typeof settings.validationCondition === "function") {
+        result = settings.validationCondition(inputField.val());
       } else {
         result = settings.validationCondition.val() === inputField.val();
       }
       if (result === true) {
-        return validationSuccess();
+        return settings["validationSuccess"](inputField, settings);
       } else {
-        return validationFailure();
+        return settings["validationFailure"](inputField, settings);
       }
     };
     evaluateValidate = function(keyCode) {
@@ -148,7 +159,7 @@ $.fn.extend({
       return validate();
     };
     settings.container = inputField.closest(".inputContainer");
-    if (!(settings.validationCondition instanceof RegExp)) {
+    if (typeof settings.validationCondition === "object" && settings.validationCondition instanceof jQuery) {
       settings.validationCondition.on(settings.events.join(" "), function(e) {
         return evaluateValidate(e.keyCode);
       });
@@ -158,7 +169,7 @@ $.fn.extend({
     });
     if (settings.resetStatesOnFocus !== false) {
       return inputField.on('focus', function() {
-        return resetState();
+        return settings.resetState(inputField, settings);
       });
     }
   }
