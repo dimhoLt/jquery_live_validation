@@ -1,0 +1,18 @@
+// From Twitter Bootstrap
+// http://getbootstrap.com/2.3.2/
+
+// Border Radius
+@mixin border-radius($radius) {
+    -webkit-border-radius: $radius;
+    -moz-border-radius: $radius;
+    border-radius: $radius;
+}
+
+@mixin border-bottom-radius($amount) {
+    -webkit-border-bottom-right-radius: $amount;
+    -moz-border-radius-bottomright: $amount;
+    border-bottom-right-radius: $amount;
+    -webkit-border-bottom-left-radius: $amount;
+    -moz-border-radius-bottomleft: $amount;
+    border-bottom-left-radius: $amount;
+}

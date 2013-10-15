@@ -1,0 +1,126 @@
+// While in the project root directory, compilation goes as follows:
+//
+// Nested:
+// $ sass --style 'nested' SASS/jquery.live_validation.scss:css/jquery.live_validation.css
+//
+// Compressed (minified):
+// $ sass --style 'compressed' SASS/jquery.live_validation.scss:css/jquery.live_validation.min.css
+
+@import "mixins";
+
+$liveValidation_darkGray: #363f48;
+$liveValidation_successColor: #26a754;
+$liveValidation_errorColor: #d53939;
+$liveValidation_textColor: #fff;
+$liveValidation_inputBgColor: #f4f6f6;
+$liveValidation_inputTextColorBlur: #8f8f8f;
+$liveValidation_inputTextColorFocus: $liveValidation_darkGray;
+$liveValidation_checkboxBgColor: $liveValidation_successColor;
+$liveValidation_checkboxCheckedBgColor: $liveValidation_darkGray;
+
+div.inputContainer {
+    position: relative;
+    margin: 0 0 22px;
+
+    // Live validation paragraphs.
+    p.fieldStatus {
+        position: absolute;
+        right: 2px;
+        bottom: 0;
+        left: 2px;
+        margin: 0;
+        padding: 2px 8px 1px;
+        line-height: 1.6em;
+        color: $liveValidation_textColor;
+        font-size: 0.8em;
+        z-index: 1;
+
+        // If icons are available
+        @extend .iconFont !optional;
+        @extend .iconCircle !optional;
+
+        @include border-bottom-radius(3px);
+
+        &.error     { background: $liveValidation_errorColor; }
+        &.success   { background: $liveValidation_successColor; }
+    }
+
+    > fieldset {
+        position: relative;
+        padding: 10px 20px;
+        background: $liveValidation_inputBgColor;
+        border: none;
+        z-index: 2;
+
+        @include border-radius(3px);
+
+        &.error {
+            padding: 9px 19px;
+            border: 1px solid $liveValidation_errorColor;
+        }
+
+        &.success {
+            padding: 9px 19px;
+            border: 1px solid $liveValidation_successColor;
+        }
+
+        &.inline {
+            white-space: nowrap;
+            overflow: hidden;
+
+            label {
+                max-width: 35%;
+                float: left;
+                padding-right: 5%;
+            }
+
+            input {
+                max-width: 60%;
+                display: inline;
+            }
+        }
+
+        &.block {
+            label, input, textarea {
+                display: block;
+                float: none;
+                width: 100%;
+            }
+        }
+
+        input {
+            float: left; // Required for status buttons to work properly.
+            width: 90%;
+            height: 30px; // Firefox
+            line-height: inherit;
+            border: none;
+            background: transparent;
+            outline: none;
+            color: $liveValidation_inputTextColorBlur;
+
+            &:focus {
+                color: $liveValidation_inputTextColorFocus;
+            }
+        }
+
+        textarea {
+            float: left;
+            width: 100%;
+            height: 13em;
+
+            background: transparent;
+            border: none;
+            outline: none;
+        }
+
+        i.iconFont {
+            display: none;
+            width: 9%;
+            float: right;
+        }
+    }
+
+    div.buttonsContainer {
+        padding-top: 20px;
+    }
+}

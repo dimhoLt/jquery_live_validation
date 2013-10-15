@@ -1,0 +1,77 @@
+div.inputContainer {
+  position: relative;
+  margin: 0 0 22px; }
+  div.inputContainer p.fieldStatus {
+    position: absolute;
+    right: 2px;
+    bottom: 0;
+    left: 2px;
+    margin: 0;
+    padding: 2px 8px 1px;
+    line-height: 1.6em;
+    color: white;
+    font-size: 0.8em;
+    z-index: 1;
+    -webkit-border-bottom-right-radius: 3px;
+    -moz-border-radius-bottomright: 3px;
+    border-bottom-right-radius: 3px;
+    -webkit-border-bottom-left-radius: 3px;
+    -moz-border-radius-bottomleft: 3px;
+    border-bottom-left-radius: 3px; }
+    div.inputContainer p.fieldStatus.error {
+      background: #d53939; }
+    div.inputContainer p.fieldStatus.success {
+      background: #26a754; }
+  div.inputContainer > fieldset {
+    position: relative;
+    padding: 10px 20px;
+    background: #f4f6f6;
+    border: none;
+    z-index: 2;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px; }
+    div.inputContainer > fieldset.error {
+      padding: 9px 19px;
+      border: 1px solid #d53939; }
+    div.inputContainer > fieldset.success {
+      padding: 9px 19px;
+      border: 1px solid #26a754; }
+    div.inputContainer > fieldset.inline {
+      white-space: nowrap;
+      overflow: hidden; }
+      div.inputContainer > fieldset.inline label {
+        max-width: 35%;
+        float: left;
+        padding-right: 5%; }
+      div.inputContainer > fieldset.inline input {
+        max-width: 60%;
+        display: inline; }
+    div.inputContainer > fieldset.block label, div.inputContainer > fieldset.block input, div.inputContainer > fieldset.block textarea {
+      display: block;
+      float: none;
+      width: 100%; }
+    div.inputContainer > fieldset input {
+      float: left;
+      width: 90%;
+      height: 30px;
+      line-height: inherit;
+      border: none;
+      background: transparent;
+      outline: none;
+      color: #8f8f8f; }
+      div.inputContainer > fieldset input:focus {
+        color: #363f48; }
+    div.inputContainer > fieldset textarea {
+      float: left;
+      width: 100%;
+      height: 13em;
+      background: transparent;
+      border: none;
+      outline: none; }
+    div.inputContainer > fieldset i.iconFont {
+      display: none;
+      width: 9%;
+      float: right; }
+  div.inputContainer div.buttonsContainer {
+    padding-top: 20px; }
