@@ -164,8 +164,13 @@ $.fn.extend({
         return evaluateValidate(e.keyCode);
       });
     }
-    settings.container.on(settings.events.join(" "), function(e) {
-      return evaluateValidate(e.keyCode);
+    inputField.on(settings.events.join(" "), function(e) {
+      var keyCode;
+      keyCode = -1;
+      if (e.keyCode != null) {
+        keyCode = e.keyCode;
+      }
+      return evaluateValidate(keyCode);
     });
     if (settings.resetStatesOnFocus !== false) {
       return inputField.on('focus', function() {

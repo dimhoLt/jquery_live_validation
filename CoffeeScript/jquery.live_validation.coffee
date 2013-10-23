@@ -210,10 +210,13 @@ $.fn.extend
         if typeof settings.validationCondition is "object" and settings.validationCondition instanceof jQuery
             settings.validationCondition.on settings.events.join(" "), (e) =>
                 evaluateValidate e.keyCode
-        
+
         # Attach validation event.
-        settings.container.on settings.events.join(" "), (e) =>
-            evaluateValidate e.keyCode
+        inputField.on settings.events.join(" "), (e) ->
+            keyCode = -1
+            if e.keyCode?
+                keyCode = e.keyCode
+            evaluateValidate keyCode
             
         # If we want to reset error classes on focus, attach event for it.
         if settings.resetStatesOnFocus isnt false
